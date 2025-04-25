@@ -5,23 +5,12 @@
 "🐛 Bug Fixes":
   - head-branch:
       - '^fix/.*'
+      - '^hotfix/.*'
 
 "📚 Documentation":
   - head-branch:
       - '^docs/.*'
 
-"⚡ Performance":
-  - head-branch:
-      - '^perf/.*'
-
-"🔒 Security":
-  - head-branch:
-      - '^security/.*'
-
 "🧹 Chores":
   - head-branch:
       - '^chore/.*'
-
-"🔀 Other Changes":
-  - head-branch:
-      - '^release/.*'
