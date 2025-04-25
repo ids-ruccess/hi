@@ -1,0 +1,44 @@
+# .github/workflows/label-pr-by-branch.yml
+name: 📌 Label PR from Branch Name
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  label-by-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label PR based on branch name
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const branch = pr.head.ref;  // ex) feature/login, bugfix/typo
+            const labels = [];
+
+            if (branch.match(/^feature\//)) {
+              labels.push("🚀 Features");
+            } else if (branch.match(/^fix\//)) {
+              labels.push("🐛 Bug Fixes");
+            } else if (branch.match(/^docs\//)) {
+              labels.push("📚 Documentation");
+            } else if (branch.match(/^perf\//)) {
+              labels.push("⚡ Performance");
+            } else if (branch.match(/^security\//)) {
+              labels.push("🔒 Security");
+            } else if (branch.match(/^chore\//)) {
+              labels.push("🧹 Chores");
+            } else if (branch.match(/^release\//)) {
+              labels.push("🔀 Other Changes");
+            }
+
+            if (labels.length) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels,
+              });
+            }
