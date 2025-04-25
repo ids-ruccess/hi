@@ -1,22 +1,18 @@
 # .github/workflows/label-pr-by-branch.yml
 name: 📌 Label PR from Branch Name
 
-# 1️⃣ 포크된 PR에도 GITHUB_TOKEN 쓰기 권한을 주려면 pull_request_target 이벤트로 변경
 on:
   pull_request_target:
     types: [opened, reopened]
 
-# 2️⃣ 이슈에 레이블을 추가할 수 있도록 permissions에 issues: write 명시
 permissions:
   issues: write
+  pull_requests: write
 
 jobs:
   label-by-branch:
     runs-on: ubuntu-latest
-
     steps:
-      # 보안상 포크된 워크스페이스 코드를 체크아웃 하는 것은 위험할 수 있습니다.
-      # PR 코드가 필요 없다면 actions/checkout 생략해도 됩니다.
       - name: Label PR based on branch name
         uses: actions/github-script@v6
         with:
@@ -25,11 +21,10 @@ jobs:
             const pr = context.payload.pull_request;
             const branch = pr.head.ref;
             const labels = [];
-
-            if (/^feature\//.test(branch))   labels.push("🚀 Features");
-            else if (/^fix\//.test(branch))   labels.push("🐛 Bug Fixes");
-            else if (/^docs\//.test(branch))  labels.push("📚 Documentation");
-            else if (/^perf\//.test(branch))  labels.push("⚡ Performance");
+            if (/^feature\//.test(branch))    labels.push("🚀 Features");
+            else if (/^fix\//.test(branch))    labels.push("🐛 Bug Fixes");
+            else if (/^docs\//.test(branch))   labels.push("📚 Documentation");
+            else if (/^perf\//.test(branch))   labels.push("⚡ Performance");
             else if (/^security\//.test(branch)) labels.push("🔒 Security");
             else if (/^chore\//.test(branch))   labels.push("🧹 Chores");
             else if (/^release\//.test(branch)) labels.push("🔀 Other Changes");
