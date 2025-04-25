@@ -1,5 +1,4 @@
-# .github/workflows/labeler.yml
-name: 📌 Auto Label PR
+name: 📌 Auto Label PR by Branch
 
 on:
   pull_request:
@@ -14,9 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: 라벨러 실행
+      - name: Run Labeler
         uses: actions/labeler@v4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml
-          sync-labels: true
+          sync-labels: true   # 레포에 없는 라벨 자동 생성
+          dot: false
