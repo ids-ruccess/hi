@@ -1,9 +1,14 @@
 # .github/workflows/label-pr-by-branch.yml
 name: 📌 Label PR from Branch Name
 
+# PR이 열리거나 재오픈될 때만 실행
 on:
   pull_request:
     types: [opened, reopened]
+
+# GITHUB_TOKEN에 이슈 쓰기 권한을 부여
+permissions:
+  issues: write
 
 jobs:
   label-by-branch:
@@ -15,7 +20,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
-            const branch = pr.head.ref;  // ex) feature/login, bugfix/typo
+            const branch = pr.head.ref;  // ex) feature/login, fix/typo
             const labels = [];
 
             if (branch.match(/^feature\//)) {
