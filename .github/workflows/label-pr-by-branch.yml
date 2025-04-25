@@ -1,39 +1,21 @@
-# .github/workflows/label-pr-by-branch.yml
-name: 📌 Label PR from Branch Name
+# .github/workflows/labeler.yml
+name: 📌 Auto Label PR
 
 on:
-  pull_request_target:
-    types: [opened, reopened]
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 permissions:
   issues: write
-  pull_requests: write
 
 jobs:
-  label-by-branch:
+  label:
     runs-on: ubuntu-latest
     steps:
-      - name: Label PR based on branch name
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const pr = context.payload.pull_request;
-            const branch = pr.head.ref;
-            const labels = [];
-            if (/^feature\//.test(branch))    labels.push("🚀 Features");
-            else if (/^fix\//.test(branch))    labels.push("🐛 Bug Fixes");
-            else if (/^docs\//.test(branch))   labels.push("📚 Documentation");
-            else if (/^perf\//.test(branch))   labels.push("⚡ Performance");
-            else if (/^security\//.test(branch)) labels.push("🔒 Security");
-            else if (/^chore\//.test(branch))   labels.push("🧹 Chores");
-            else if (/^release\//.test(branch)) labels.push("🔀 Other Changes");
+      - uses: actions/checkout@v3
 
-            if (labels.length) {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                labels,
-              });
-            }
+      - name: 라벨러 실행
+        uses: actions/labeler@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
