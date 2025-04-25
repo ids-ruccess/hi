@@ -1,22 +1,22 @@
-name: 📌 Auto Label PR by Branch
+name: Label PR by Branch
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, synchronize, reopened]
 
 permissions:
-  issues: write
+  contents: read           # 코드 체크아웃 등 읽기 작업
+  issues: write            # 이슈(→PR)에 라벨 추가 권한
+  pull-requests: write     # PR 자체에 대한 쓰기 권한(머지 커멘트 등)
 
 jobs:
   label:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Run Labeler
-        uses: actions/labeler@v4
+      - uses: actions/labeler@v4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml
-          sync-labels: true   # 레포에 없는 라벨 자동 생성
+          sync-labels: true
           dot: false
