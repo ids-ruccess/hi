@@ -1,29 +1,27 @@
-# .github/labeler.yml
-
 "🚀 Features":
-  head-branch:
-    - '^feature/.*'
+  - head-branch:
+      - '^feature/.*'
 
 "🐛 Bug Fixes":
-  head-branch:
-    - '^fix/.*'
+  - head-branch:
+      - '^fix/.*'
 
 "📚 Documentation":
-  head-branch:
-    - '^docs/.*'
+  - head-branch:
+      - '^docs/.*'
 
 "⚡ Performance":
-  head-branch:
-    - '^perf/.*'
+  - head-branch:
+      - '^perf/.*'
 
 "🔒 Security":
-  head-branch:
-    - '^security/.*'
+  - head-branch:
+      - '^security/.*'
 
 "🧹 Chores":
-  head-branch:
-    - '^chore/.*'
+  - head-branch:
+      - '^chore/.*'
 
 "🔀 Other Changes":
-  head-branch:
-    - '^release/.*'
+  - head-branch:
+      - '^release/.*'
