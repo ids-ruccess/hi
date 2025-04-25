@@ -11,7 +11,7 @@ async function bootstrap() {
 
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-
+ 
     app.enableVersioning({
         type: VersioningType.URI,
     });
