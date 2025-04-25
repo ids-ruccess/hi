@@ -1,16 +1,11 @@
 "🚀 Features":
-  - head-branch:
-      - '^feature/.*'
+  - head-branch: ['^feature/*', 'feature/*']
 
 "🐛 Bug Fixes":
-  - head-branch:
-      - '^fix/.*'
-      - '^hotfix/.*'
+  - head-branch: ['^fix/*', 'fix/*', '^hotfix/*', 'hotfix/*']
 
 "📚 Documentation":
-  - head-branch:
-      - '^docs/.*'
+  - head-branch: ['^docs/*', 'docs/*']
 
 "🧹 Chores":
-  - head-branch:
-      - '^chore/.*'
+  - head-branch: ['^chore/*', 'chore/*']
