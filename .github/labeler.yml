@@ -1,21 +1,29 @@
 # .github/labeler.yml
 
-🚀 Features:
+"🚀 Features":
   head-branch:
-    - '^feature/.*'      # feature/ 로 시작하는 브랜치
+    - '^feature/.*'
 
-🐛 Bug Fixes:
+"🐛 Bug Fixes":
   head-branch:
-    - '^fix/.*'          # fix/ 로 시작하는 브랜치
+    - '^fix/.*'
 
-📚 Documentation:
+"📚 Documentation":
   head-branch:
     - '^docs/.*'
 
-🧹 Chores:
+"⚡ Performance":
+  head-branch:
+    - '^perf/.*'
+
+"🔒 Security":
+  head-branch:
+    - '^security/.*'
+
+"🧹 Chores":
   head-branch:
     - '^chore/.*'
 
-🔀 Other Changes:
+"🔀 Other Changes":
   head-branch:
     - '^release/.*'
