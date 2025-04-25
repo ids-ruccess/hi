@@ -1,27 +1,11 @@
 "🚀 Features":
-  - head-branch:
-      - '^feature/.*'
+  - head-branch: ['^feature/*', 'feature/*']
 
 "🐛 Bug Fixes":
-  - head-branch:
-      - '^fix/.*'
+  - head-branch: ['^fix/*', 'fix/*', '^hotfix/*', 'hotfix/*']
 
 "📚 Documentation":
-  - head-branch:
-      - '^docs/.*'
-
-"⚡ Performance":
-  - head-branch:
-      - '^perf/.*'
-
-"🔒 Security":
-  - head-branch:
-      - '^security/.*'
+  - head-branch: ['^docs/*', 'docs/*']
 
 "🧹 Chores":
-  - head-branch:
-      - '^chore/.*'
-
-"🔀 Other Changes":
-  - head-branch:
-      - '^release/.*'
+  - head-branch: ['^chore/*', 'chore/*']
