@@ -1,24 +1,24 @@
 # .github/labeler.yml
 '🚀 Features':
   head-branch:
-    - feature/*
+    - 'feature/*'
 
 '🐛 Bug Fixes':
   head-branch:
-    - fix/*
-    - hotfix/*
+    - 'fix/*'
+    - 'hotfix/*'
 
 '📚 Documentation':
   head-branch:
-    - docs/*
+    - 'docs/*'
 
 '🧹 Chores':
   head-branch:
-    - chore/*
+    - 'chore/*'
 
 '🧪 Tests':
   head-branch:
-    - test/*
+    - 'test/*'
   paths:
     - '**/*.spec.ts'
     - '**/*.test.ts'
