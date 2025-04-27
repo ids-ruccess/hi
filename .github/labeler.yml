@@ -1,33 +1,38 @@
 # .github/labeler.yml
+
 '🚀 Features':
-  head-branch:
-    - 'feature/*'
+  - head-branch:
+      - 'feature/*'
 
 '🐛 Bug Fixes':
-  head-branch:
-    - 'fix/*'
-    - 'hotfix/*'
+  - head-branch:
+      - 'fix/*'
+      - 'hotfix/*'
 
 '📚 Documentation':
-  head-branch:
-    - 'docs/*'
+  - head-branch:
+      - 'docs/*'
 
 '🧹 Chores':
-  head-branch:
-    - 'chore/*'
+  - head-branch:
+      - 'chore/*'
 
 '🧪 Tests':
-  head-branch:
-    - 'test/*'
-  paths:
-    - '**/*.spec.ts'
-    - '**/*.test.ts'
-    - 'test/**'
+  # 브랜치명 패턴
+  - head-branch:
+      - 'test/*'
+  # 테스트 파일 변경 감지
+  - changed-files:
+      any-glob-to-any-file:
+        - '**/*.spec.ts'
+        - '**/*.test.ts'
+        - 'test/**'
 
 '🤖 deploy':
-  paths:
-    - '.github/workflows/**'
-    - 'ci/**'
-    - 'Dockerfile*'
-    - '*.yml'
-    - '.aws/**'
+  - changed-files:
+      any-glob-to-any-file:
+        - '.github/workflows/**'
+        - 'ci/**'
+        - 'Dockerfile*'
+        - '*.yml'
+        - '.aws/**'
