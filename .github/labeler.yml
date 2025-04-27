@@ -2,7 +2,7 @@
 '🚀 Features':
   head-branch:
     - 'feature/*'
-
+    
 '🐛 Bug Fixes':
   head-branch:
     - 'fix/*'
