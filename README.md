@@ -1,5 +1,5 @@
 # {{project name을 작성해주세요}}
-{{project name}} 서버 입니다 
+{{project name}} 서버 입니다  
 
 프로젝트 시작할때는 그 당시 nest 최신버전을 지향합니다.
 
@@ -19,7 +19,7 @@ git
 ### nestjs 최신버전 업데이트
 ```
 //step1
-npm install -g @nestjs/cli
+npm install -g @nestjs/cli 
 
 //step2: nest 최신버전 확인
 nest --version
