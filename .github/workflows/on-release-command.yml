@@ -7,16 +7,21 @@ on:
 
 jobs:
   create-release:
-    if: |
-      github.event.issue.pull_request == true &&
+    # PR에 단 댓글이면서, 대상 PR의 base 브랜치가 main일 때만 실행되도록 필터링
+    if: >
+      github.event.issue.pull_request &&
+      github.event.issue.pull_request.base.ref == 'main' &&
       startsWith(github.event.comment.body, '/release ')
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Extract Version
         run: |
-          # 1) Actions context 에서 코멘트 본문을 변수로 가져오기
+          # 코멘트 본문에서 "/release " 접두어 제거
           COMMENT="${{ github.event.comment.body }}"
-          # 2) "/release " 접두어 제거하여 VERSION 변수에 담기
           VERSION="${COMMENT#/release }"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
