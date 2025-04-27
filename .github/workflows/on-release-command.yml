@@ -9,7 +9,11 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      # 1) PR인지, base 브랜치가 main 인지, 커맨드 형태인지 체크
+      # ── 0) GH CLI로 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # ── 1) PR인지, base가 main인지, /release 커맨드인지 검사
       - name: Validate PR, Base Branch, and Command
         id: validate
         uses: actions/github-script@v6
@@ -17,50 +21,43 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue = context.payload.issue;
-            // 1. PR인지 확인
             if (!issue.pull_request) {
               core.info("Not a PR comment → skipping");
               return;
             }
-            // 2. PR 상세 정보 호출
             const pr = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo:  context.repo.repo,
               pull_number: issue.number
             });
-            // 3. base 브랜치 체크
             if (pr.data.base.ref !== 'main') {
               core.info(`Base branch is '${pr.data.base.ref}' (not 'main') → skipping`);
               return;
             }
             const comment = context.payload.comment.body.trim();
-            // 4. 커맨드 포맷 체크
             if (!comment.startsWith('/release ')) {
               core.info("Comment does not start with '/release ' → skipping");
               return;
             }
-            // 5. 버전 추출해서 출력 변수에 저장
             const version = comment.substring('/release '.length).trim();
             core.setOutput("version", version);
 
-      # 2) validate 단계에서 version 출력 변수가 비어 있으면(조건 불충족) 잡 종료
+      # ── 2) validate 단계에서 버전이 없으면 종료
       - name: Abort if not valid
         if: steps.validate.outputs.version == ''
-        run: |
-          echo "Conditions not met → exiting"
-          exit 0
+        run: exit 0
 
-      # 3) 태그 생성 & 푸시
+      # ── 3) 태그 생성 & 푸시
       - name: Create Tag & Push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git tag "v${{ steps.validate.outputs.version }}"
           git push origin "v${{ steps.validate.outputs.version }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4) Draft Release Notes 작성
+      # ── 4) Draft Release Notes 작성
       - name: Draft Release Notes
         id: drafter
         uses: release-drafter/release-drafter@v5
@@ -69,7 +66,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5) 정식 릴리즈 생성
+      # ── 5) 정식 릴리즈 생성
       - name: Publish Release
         uses: actions/create-release@v1
         with:
