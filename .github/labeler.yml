@@ -7,6 +7,9 @@
 '🐛 Bug Fixes':
   - head-branch:
       - 'fix/*'
+
+'🔥 Hotfix':
+  - head-branch:
       - 'hotfix/*'
 
 '📚 Documentation':
