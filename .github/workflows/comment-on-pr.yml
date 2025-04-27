@@ -1,0 +1,28 @@
+# .github/workflows/comment-on-pr.yml
+name: "💬 Ask for Release Command"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+jobs:
+  ask-release-command:
+    if: github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+
+            // PR이 main 브랜치로 열리거나 다시 열렸을 때
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              issue_number: pr.number,
+              body: "👋 PR이 `main` 브랜치로 열렸습니다! 배포 준비가 완료되면, 머지 후 릴리즈 노트를 생성할 `/release <버전>` 명령을 꼭 입력해주세요."
+            });
