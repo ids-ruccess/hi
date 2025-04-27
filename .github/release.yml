@@ -1,41 +1,42 @@
 # .github/release.yml
-changelog:
-  exclude:
-    labels:
-      - ignore-for-release      # 이 라벨이 붙은 PR은 릴리즈 노트에서 제외
-    authors:
-      - dependabot[bot]         # 봇 PR 제외
-      - github-actions[bot]
+name-template: '릴리즈 v$NEXT_PATCH_VERSION'
+tag-template:  'v$NEXT_PATCH_VERSION'
 
-  categories:
-    - title: '🚀 기능 추가'
-      labels:
-        - '🚀 Features'
+template: |
+  $DESCRIPTION         # 사용자가 /release -d 에 입력한 개요
+  ## 🔄 주요 변경사항
+  $CHANGES             # 라벨별로 그룹화된 PR 목록이 여기에 들어갑니다
 
-    - title: '🐛 버그 수정'
-      labels:
-        - '🐛 Bug Fixes'
+no-changes-template: '이번 릴리즈에는 변경사항이 없습니다.'
 
-    - title: '🔥 긴급 수정'
-      labels:
-        - '🔥 Hotfix'
+exclude:
+  labels:
+    - ignore-for-release
+  authors:
+    - dependabot[bot]
+    - github-actions[bot]
 
-    - title: '📚 문서'
-      labels:
-        - '📚 Documentation'
+categories:
+  - title: '🚀 기능 추가'
+    labels: ['🚀 Features']
 
-    - title: '🧹 자잘한 작업'
-      labels:
-        - '🧹 Chores'
+  - title: '🐛 버그 수정'
+    labels: ['🐛 Bug Fixes']
 
-    - title: '🧪 테스트'
-      labels:
-        - '🧪 Tests'
+  - title: '🔥 긴급 수정'
+    labels: ['🔥 Hotfix']
 
-    - title: '🤖 CI/CD·배포 설정'
-      labels:
-        - '🤖 deploy'
+  - title: '📚 문서'
+    labels: ['📚 Documentation']
 
-    - title: '🔀 기타 변경사항'
-      labels:
-        - '🔀 Other Changes'
+  - title: '🧹 자잘한 작업'
+    labels: ['🧹 Chores']
+
+  - title: '🧪 테스트'
+    labels: ['🧪 Tests']
+
+  - title: '🤖 CI/CD·배포 설정'
+    labels: ['🤖 deploy']
+
+  - title: '🔀 기타 변경사항'
+    labels: ['🔀 Other Changes']
