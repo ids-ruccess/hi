@@ -1,22 +1,22 @@
 # .github/labeler.yml
-🚀 Features:
+"🚀 Features":
   head-branch:
     - feature/*
 
-🐛 Bug Fixes:
+"🐛 Bug Fixes":
   head-branch:
     - fix/*
     - hotfix/*
 
-📚 Documentation:
+"📚 Documentation":
   head-branch:
     - docs/*
 
-🧹 Chores:
+"🧹 Chores":
   head-branch:
     - chore/*
 
-🧪 Tests:
+"🧪 Tests":
   head-branch:
     - test/*
   paths:
@@ -24,7 +24,7 @@
     - '**/*.test.ts'
     - 'test/**'
 
-🤖 deploy:
+"🤖 deploy":
   paths:
     - .github/workflows/**
     - ci/**
