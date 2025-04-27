@@ -1,11 +1,34 @@
-"🚀 Features":
-  - head-branch: ['^feature/*', 'feature/*']
+# .github/labeler.yml
 
-"🐛 Bug Fixes":
-  - head-branch: ['^fix/*', 'fix/*', '^hotfix/*', 'hotfix/*']
+'🚀 Features':
+  head-branch:
+    - 'feature/*'
 
-"📚 Documentation":
-  - head-branch: ['^docs/*', 'docs/*']
+'🐛 Bug Fixes':
+  head-branch:
+    - 'fix/*'
+    - 'hotfix/*'
 
-"🧹 Chores":
-  - head-branch: ['^chore/*', 'chore/*']
+'📚 Documentation':
+  head-branch:
+    - 'docs/*'
+
+'🧹 Chores':
+  head-branch:
+    - 'chore/*'
+
+'🧪 Tests':
+  head-branch:
+    - 'test/*'
+  paths:
+    - '**/*.spec.ts'
+    - '**/*.test.ts'
+    - 'test/**'
+
+'🤖 deploy':
+  paths:
+    - '.github/workflows/**'
+    - 'ci/**'
+    - 'Dockerfile*'
+    - '*.yml'
+    - '.aws/*'
