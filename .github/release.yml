@@ -1,4 +1,19 @@
 # .github/release.yml
+
+
+template: |
+  ## 릴리즈 개요
+  $DESCRIPTION
+
+  ### 📱 Android 빌드 버전
+  <!-- ex) 12345 -->
+
+  ### 🍎 iOS 빌드 버전
+  <!-- ex) 67890 -->
+
+  ## 🔄 주요 변경사항
+  $CHANGES
+
 changelog:
   exclude:
     labels:
