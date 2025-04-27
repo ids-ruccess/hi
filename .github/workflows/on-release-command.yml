@@ -1,6 +1,6 @@
 # 2) 사용자의 코멘트를 듣고 릴리즈 생성
 # .github/workflows/on-release-command.yml
-name: “🚀 Release on Slash-Command”
+name: "🚀 Release on Slash-Command"
 on:
   issue_comment:
     types: [created]
