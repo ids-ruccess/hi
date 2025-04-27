@@ -3,7 +3,7 @@ name: "💬 Ask for Release Command"
 
 on:
   pull_request:
-    types:
+    types: 
       - opened
       - reopened
 
