@@ -1,0 +1,42 @@
+# 2) 사용자의 코멘트를 듣고 릴리즈 생성
+# .github/workflows/on-release-command.yml
+name: “🚀 Release on Slash-Command”
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  create-release:
+    if: |
+      github.event.issue.pull_request &&                  # PR 코멘트만
+      startsWith(github.event.comment.body, '/release ')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Version
+        run: |
+          echo "VERSION=${{ github.event.comment.body#'/release ' }}" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag v${VERSION}
+          git push origin v${VERSION}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Draft Release Notes
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: .github/release-drafter.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ env.VERSION }}
+          release_name: v${{ env.VERSION }}
+          draft: false
+          body: ${{ steps.drafter.outputs.notes }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
