@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) `/release -v <version> -d \`<description>\`` 파싱 & 유효성 검사
+      # 1) /release -v <ver> -d `<desc>` 파싱 & 유효성 검사
       - name: Validate & extract `/release` params
         id: validate
         uses: actions/github-script@v6
@@ -21,46 +21,55 @@ jobs:
             if (!issue.pull_request) return;
             const pr = await github.rest.pulls.get({
               owner: context.repo.owner,
-              repo: context.repo.repo,
+              repo:  context.repo.repo,
               pull_number: issue.number
             });
             if (pr.data.base.ref !== 'main') return;
-            const body = comment.body.trim();
-            if (!body.startsWith('/release ')) return;
-            const vMatch = body.match(/-v\s+(\S+)/);
-            if (!vMatch) return;
-            const version = vMatch[1];
-            const dMatch = body.match(/-d\s+`([\s\S]+?)`/);
-            const description = dMatch ? dMatch[1] : '';
+            const b = comment.body.trim();
+            if (!b.startsWith('/release ')) return;
+            const vm = b.match(/-v\s+(\S+)/);
+            if (!vm) return;
+            const version = vm[1];
+            const dm = b.match(/-d\s+`([\s\S]+?)`/);
+            const description = dm ? dm[1] : '';
             core.setOutput('version', version);
             core.setOutput('description', description);
 
-      # 2) 버전 플래그가 없으면 워크플로우 종료
+      # 2) version 없으면 종료
       - name: Abort if no version
         if: steps.validate.outputs.version == ''
         run: exit 0
 
-      # 3) PR에 “작성중” 상태 코멘트
+      # 3) PR에 “작성중” 코멘트
       - name: Comment “작성중” on PR
-        if: steps.validate.outputs.version != ''
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
-              repo: context.repo.repo,
+              repo:  context.repo.repo,
               issue_number: context.payload.issue.number,
               body: `📝 릴리즈 노트 작성중… v${{ steps.validate.outputs.version }}`
             });
 
-      # 4) main 브랜치 체크아웃 (git tag 조작)
+      # 4) main 브랜치 체크아웃
       - name: Checkout main branch
         uses: actions/checkout@v3
         with:
           ref: main
 
-      # 5) Draft Release Notes 생성
+      # 5) 태그 생성 & 푸시 (여기서 태그를 먼저 만들어야 release-drafter가 인식합니다)
+      - name: Create Tag & Push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag "v${{ steps.validate.outputs.version }}"
+          git push origin "v${{ steps.validate.outputs.version }}"
+
+      # 6) Draft Release Notes 생성 (새 태그 기준으로)
       - name: Draft Release Notes
         id: drafter
         uses: release-drafter/release-drafter@v5
@@ -69,7 +78,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 6) 기존 Draft를 찾아 퍼블리시 (단일 릴리즈 유지)
+      # 7) Draft를 Published로 전환해 “한 개의 릴리즈”만 유지
       - name: Publish the existing draft
         id: publish
         uses: actions/github-script@v6
@@ -90,8 +99,8 @@ jobs:
               draft: false
             });
 
-      # 7) 성공 코멘트
-      - name: Comment success on PR
+      # 8) 성공 코멘트
+      - name: Comment Success on PR
         if: steps.publish.conclusion == 'success'
         uses: actions/github-script@v6
         with:
@@ -104,7 +113,7 @@ jobs:
               body: `✅ 릴리즈 v${{ steps.validate.outputs.version }} 작성 완료!`
             });
 
-      # 8) 실패 시 태그 삭제 후 코멘트
+      # 9) 실패 시 태그 삭제 & 실패 코멘트
       - name: Cleanup tag & comment failure
         if: steps.publish.conclusion != 'success'
         uses: actions/github-script@v6
