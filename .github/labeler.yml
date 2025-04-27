@@ -1,27 +1,31 @@
-"🚀 Features":
-  - head-branch:
-      - '^feature/.*'
+# .github/labeler.yml
+'🚀 Features':
+  head-branch:
+    - 'feature/*'       # feature/~~ 에서만
 
-"🐛 Bug Fixes":
-  - head-branch:
-      - '^fix/.*'
+'🐛 Bug Fixes':
+  head-branch:
+    - 'fix/*'
+    - 'hotfix/*'
 
-"📚 Documentation":
-  - head-branch:
-      - '^docs/.*'
+'📚 Documentation':
+  head-branch:
+    - 'docs/*'
 
-"⚡ Performance":
-  - head-branch:
-      - '^perf/.*'
+'🧹 Chores':
+  head-branch:
+    - 'chore/*'
 
-"🔒 Security":
-  - head-branch:
-      - '^security/.*'
+'🧪 Tests':
+  paths:
+    - 'test/**'
+    - '**/*.spec.ts'
+    - '**/*.test.ts'
 
-"🧹 Chores":
-  - head-branch:
-      - '^chore/.*'
-
-"🔀 Other Changes":
-  - head-branch:
-      - '^release/.*'
+'🤖 deploy':
+  paths:
+    - '.github/workflows/**'
+    - 'ci/**'
+    - 'Dockerfile*'
+    - '*.yml'
+    - '.aws/**'
