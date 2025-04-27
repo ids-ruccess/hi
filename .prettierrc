@@ -9,6 +9,6 @@
     "arrowParens": "avoid",
     "vueIndentScriptAndStyle": false,
     "endOfLine": "auto",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": true, 
     "singleQuote": true
 } 
