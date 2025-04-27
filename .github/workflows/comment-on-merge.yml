@@ -1,0 +1,21 @@
+# 1) PR 머지 시, 사용자에게 코멘트 남기기
+# .github/workflows/comment-on-merge.yml
+name: “💬 Ask for Release Version”
+on:
+  pull_request:
+    types: [closed]
+jobs:
+  ask-version:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "🎉 PR이 main에 머지되었습니다! 릴리즈 버전을 입력하려면, 이 이슈에 `/release vx.y.z` 코멘트를 달아주세요."
+            })
