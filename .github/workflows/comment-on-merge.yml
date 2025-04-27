@@ -1,6 +1,6 @@
 # 1) PR 머지 시, 사용자에게 코멘트 남기기
 # .github/workflows/comment-on-merge.yml
-name: “💬 Ask for Release Version”
+name: "💬 Ask for Release Version"
 on:
   pull_request:
     types: [closed]
