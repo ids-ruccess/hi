@@ -1,46 +1,41 @@
 # .github/release.yml
-
-# 1) 릴리즈 제목·태그 포맷
-name-template: '릴리즈 v$NEXT_PATCH_VERSION'
-tag-template: 'v$NEXT_PATCH_VERSION'
-
-# 2) Draft Release 본문 템플릿
-template: |
-  ### 📱 Android 빌드 버전
-  <!-- ex) 12345 -->
-
-  ### 🍎 iOS 빌드 버전
-  <!-- ex) 67890 -->
-
-  ### 🔄 변경사항
-  $CHANGES
-
-# 3) 변경사항이 없을 경우
-no-changes-template: '이번 릴리즈에는 변경사항이 없습니다.'
-
-# 4) 자동 제외할 라벨·작성자
-exclude:
-  labels:
-    - '🧪 Tests'         # 테스트 전용 PR 제외
-    - '🤖 deploy'        # CI/CD 설정 PR 제외
-  authors:
-    - dependabot[bot]
-    - github-actions[bot]
-
-# 5) 카테고리 정의 (labeler.yml 에 있는 라벨 그대로)
-categories:
-  - title: '🚀 기능 추가'
+changelog:
+  exclude:
     labels:
-      - '🚀 Features'
+      - ignore-for-release      # 이 라벨이 붙은 PR은 릴리즈 노트에서 제외
+    authors:
+      - dependabot[bot]         # 봇 PR 제외
+      - github-actions[bot]
 
-  - title: '🐛 버그 수정'
-    labels:
-      - '🐛 Bug Fixes'
+  categories:
+    - title: '🚀 기능 추가'
+      labels:
+        - '🚀 Features'
 
-  - title: '📚 문서'
-    labels:
-      - '📚 Documentation'
+    - title: '🐛 버그 수정'
+      labels:
+        - '🐛 Bug Fixes'
 
-  - title: '🧹 자잘한 작업'
-    labels:
-      - '🧹 Chores'
+    - title: '🔥 긴급 수정'
+      labels:
+        - '🔥 Hotfix'
+
+    - title: '📚 문서'
+      labels:
+        - '📚 Documentation'
+
+    - title: '🧹 자잘한 작업'
+      labels:
+        - '🧹 Chores'
+
+    - title: '🧪 테스트'
+      labels:
+        - '🧪 Tests'
+
+    - title: '🤖 CI/CD·배포 설정'
+      labels:
+        - '🤖 deploy'
+
+    - title: '🔀 기타 변경사항'
+      labels:
+        - '🔀 Other Changes'
