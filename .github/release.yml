@@ -4,6 +4,7 @@ tag-template:  'v$NEXT_PATCH_VERSION'
 
 template: |
   ## 🔄 주요 변경사항
+
   $CHANGES
 
 no-changes-template: '이번 릴리즈에는 변경사항이 없습니다.'
