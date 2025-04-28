@@ -24,5 +24,5 @@ jobs:
               owner: context.repo.owner,
               repo:  context.repo.repo,
               issue_number: pr.number,
-              body: "👋 PR이 `main` 브랜치로 열렸습니다! 배포 준비가 완료되면, 머지 후 릴리즈 노트를 생성할 `/release <버전>` 명령을 꼭 입력해주세요."
+              body: "👋 PR이 `main` 브랜치로 열렸습니다! 배포 준비가 완료되면, 머지 후 릴리즈 노트를 생성할 `/release -v x.y.z -d ${description 내용} ` 명령을 꼭 입력해주세요."
             });
