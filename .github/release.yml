@@ -3,7 +3,9 @@ name-template: 'Release v$NEXT_PATCH_VERSION'
 tag-template:  'v$NEXT_PATCH_VERSION'
 
 template: |
+
   ## 🔄 주요 변경사항
+
 
   $CHANGES
 
