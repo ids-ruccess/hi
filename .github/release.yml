@@ -4,7 +4,7 @@ tag-template:  'v$NEXT_PATCH_VERSION'
 
 template: |
   ## 🔄 주요 변경사항
-  $CHANGES             # 라벨별로 그룹화된 PR 목록이 여기에 들어갑니다
+  $CHANGES
 
 no-changes-template: '이번 릴리즈에는 변경사항이 없습니다.'
 
