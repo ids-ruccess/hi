@@ -3,7 +3,7 @@ name: "💬 Ask for Release Command"
 
 on:
   pull_request:
-    types:
+    types: 
       - opened
       - reopened
 
@@ -18,21 +18,19 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
-            if (!pr) return;  // Safety
+            if (!pr) return;
 
-            // 1) 가장 최근 릴리즈 태그 가져오기
+            // 1) 최신 릴리즈 태그
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo:  context.repo.repo,
               per_page: 1
             });
-            if (!releases.length) {
-              throw new Error("No existing releases found – please create one first.");
-            }
-            const lastTag = releases[0].tag_name;        // e.g. "v1.2.3"
+            if (!releases.length) throw new Error("No existing releases");
+            const lastTag = releases[0].tag_name;            // e.g. "v1.2.3"
             const [maj, min, pat] = lastTag.replace(/^v/, "").split(".").map(n => parseInt(n,10));
 
-            // 2) branch 이름에 "hotfix" 포함 여부로 bump 전략 선택
+            // 2) bump 전략
             const head = pr.head.ref;
             let nextMaj = maj, nextMin = min, nextPat = pat;
             if (head.includes("hotfix")) {
@@ -41,12 +39,14 @@ jobs:
               nextMin = min + 1;
               nextPat = 0;
             }
-            const suggested = `v${nextMaj}.${nextMin}.${nextPat}`;
 
-            // 3) 명령어 형식 생성
+            // 3) 추천 버전에는 v 없이 숫자만
+            const suggested = `${nextMaj}.${nextMin}.${nextPat}`;
+
+            // 4) 복사 가능한 커맨드
             const cmd = `/release -v ${suggested} -d \`<여기에 개요를 입력하세요>\``;
 
-            // 4) 코멘트 본문
+            // 5) 코멘트 내용
             const body = [
               "👋 PR이 `main` 브랜치로 열렸습니다!",
               `• 마지막 릴리즈: **${lastTag}**`,
