@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) /release -v <ver> -d `<desc>` 파싱 & 유효성 검사
+      # 1) /release -v <ver> -d `<desc>` 파싱 & base 브랜치 추출
       - name: Validate & extract `/release` params
         id: validate
         uses: actions/github-script@v6
@@ -24,7 +24,9 @@ jobs:
               repo:  context.repo.repo,
               pull_number: issue.number
             });
-            if (pr.data.base.ref !== 'main') return;
+            const base = pr.data.base.ref;
+            // base 브랜치가 main이 아닐 경우 스킵
+            if (base !== 'main') return;
             const b = comment.body.trim();
             if (!b.startsWith('/release ')) return;
             const vm = b.match(/-v\s+(\S+)/);
@@ -34,33 +36,37 @@ jobs:
             const description = dm ? dm[1] : '';
             core.setOutput('version', version);
             core.setOutput('description', description);
+            core.setOutput('base_branch', base);
 
-      # 2) 버전 없으면 종료
+      # 2) version이 없으면 종료 (base ≠ main도 여기서 잡힘)
       - name: Abort if no version
         if: steps.validate.outputs.version == ''
         run: exit 0
 
-      # 3) PR에 “작성중” 코멘트
+      # 3) “작성중” 코멘트
       - name: Comment “작성중” on PR
+        if: steps.validate.outputs.version != ''
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
-              repo: context.repo.repo,
+              repo:  context.repo.repo,
               issue_number: context.payload.issue.number,
               body: `📝 릴리즈 노트 작성중… v${{ steps.validate.outputs.version }}`
             });
 
       # 4) PR의 base 브랜치 체크아웃
       - name: Checkout base branch
+        if: steps.validate.outputs.version != ''
         uses: actions/checkout@v3
         with:
           ref: ${{ steps.validate.outputs.base_branch }}
 
       # 5) 태그 생성 & 푸시
       - name: Create Tag & Push
+        if: steps.validate.outputs.version != ''
         run: |
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
@@ -71,36 +77,35 @@ jobs:
 
       # 6) Draft 생성/업데이트
       - name: Draft Release Notes
+        id: drafter
+        if: steps.validate.outputs.version != ''
         uses: release-drafter/release-drafter@v5
         with:
-          config-name: release.yml
+          config-name: .github/release.yml
           version: ${{ steps.validate.outputs.version }}
           name: "Release v${{ steps.validate.outputs.version }} - ${{ steps.validate.outputs.base_branch }}"
-          tag:     "v${{ steps.validate.outputs.version }}"
+          tag:  "v${{ steps.validate.outputs.version }}"
           header: ${{ steps.validate.outputs.description }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 7) Draft 퍼블리시
+      # 7) Draft 퍼블리시 (단일 릴리즈 유지)
       - name: Publish the draft
+        if: steps.drafter.outputs.id != ''
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const tag = `v${{ steps.validate.outputs.version }}`;
-            const drafts = (await github.rest.repos.listReleases({
-              owner: context.repo.owner, repo: context.repo.repo
-            })).data.filter(r => r.tag_name === tag && r.draft);
-            if (!drafts.length) throw new Error(`Draft ${ tag } not found`);
+            const releaseId = parseInt('${{ steps.drafter.outputs.id }}', 10);
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: drafts[0].id,
+              repo:  context.repo.repo,
+              release_id: releaseId,
               draft: false
             });
 
       # 8) 성공 코멘트
-      - name: Comment Success on PR
+      - name: Comment success on PR
         if: steps.publish.conclusion == 'success'
         uses: actions/github-script@v6
         with:
@@ -108,13 +113,13 @@ jobs:
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
-              repo: context.repo.repo,
+              repo:  context.repo.repo,
               issue_number: context.payload.issue.number,
-              body: `✅ 릴리즈 v${{ steps.validate.outputs.version }} 완료되었습니다!`
+              body: `✅ Release v${{ steps.validate.outputs.version }} 완료되었습니다!`
             });
 
       # 9) 실패 시 태그 삭제 & 실패 코멘트
-      - name: Cleanup Tag & Comment Failure
+      - name: Cleanup & comment failure
         if: steps.publish.conclusion != 'success'
         uses: actions/github-script@v6
         with:
@@ -131,5 +136,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.issue.number,
-              body: `❌ 릴리즈 v${{ steps.validate.outputs.version }} 실패했습니다.`
+              body: `❌ Release v${{ steps.validate.outputs.version }} 실패했습니다.`
             });
