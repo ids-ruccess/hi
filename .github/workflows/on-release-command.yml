@@ -73,7 +73,7 @@ jobs:
       - name: Draft Release Notes
         uses: release-drafter/release-drafter@v5
         with:
-          config-name: .github/release.yml
+          config-name: release.yml
           version: ${{ steps.validate.outputs.version }}
           name:    "릴리즈 v${{ steps.validate.outputs.version }}"
           tag:     "v${{ steps.validate.outputs.version }}"
