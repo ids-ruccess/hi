@@ -81,7 +81,7 @@ jobs:
         if: steps.validate.outputs.version != ''
         uses: release-drafter/release-drafter@v5
         with:
-          config-name: .github/release.yml
+          config-name: release.yml
           version: ${{ steps.validate.outputs.version }}
           name: "Release v${{ steps.validate.outputs.version }} - ${{ steps.validate.outputs.base_branch }}"
           tag:  "v${{ steps.validate.outputs.version }}"
