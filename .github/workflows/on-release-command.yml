@@ -53,11 +53,11 @@ jobs:
               body: `📝 릴리즈 노트 작성중… v${{ steps.validate.outputs.version }}`
             });
 
-      # 4) main 브랜치 체크아웃
-      - name: Checkout main branch
+      # 4) PR의 base 브랜치 체크아웃
+      - name: Checkout base branch
         uses: actions/checkout@v3
         with:
-          ref: main
+          ref: ${{ steps.validate.outputs.base_branch }}
 
       # 5) 태그 생성 & 푸시
       - name: Create Tag & Push
@@ -75,8 +75,9 @@ jobs:
         with:
           config-name: release.yml
           version: ${{ steps.validate.outputs.version }}
-          name:    "릴리즈 v${{ steps.validate.outputs.version }}"
+          name: "Release v${{ steps.validate.outputs.version }} - ${{ steps.validate.outputs.base_branch }}"
           tag:     "v${{ steps.validate.outputs.version }}"
+          header: ${{ steps.validate.outputs.description }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
