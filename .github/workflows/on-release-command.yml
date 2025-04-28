@@ -83,7 +83,7 @@ jobs:
         with:
           config-name: release.yml
           version: ${{ steps.validate.outputs.version }}
-          name: "Release v${{ steps.validate.outputs.version }} - ${{ steps.validate.outputs.base_branch }}"
+          name: "Release v${{ steps.validate.outputs.version }}"
           tag:  "v${{ steps.validate.outputs.version }}"
           header: ${{ steps.validate.outputs.description }}
         env:
@@ -113,13 +113,13 @@ jobs:
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
-              repo:  context.repo.repo,
+              repo: context.repo.repo,
               issue_number: context.payload.issue.number,
               body: `✅ Release v${{ steps.validate.outputs.version }} 완료되었습니다!`
             });
 
       # 9) 실패 시 태그 삭제 & 실패 코멘트
-      - name: Cleanup & comment failure
+      - name: Cleanup Tag & Comment Failure
         if: steps.publish.conclusion != 'success'
         uses: actions/github-script@v6
         with:
