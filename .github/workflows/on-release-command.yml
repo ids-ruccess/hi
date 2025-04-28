@@ -91,6 +91,7 @@ jobs:
 
       # 7) Draft 퍼블리시 (단일 릴리즈 유지)
       - name: Publish the draft
+        id: publish
         if: steps.drafter.outputs.id != ''
         uses: actions/github-script@v6
         with:
@@ -99,14 +100,14 @@ jobs:
             const releaseId = parseInt('${{ steps.drafter.outputs.id }}', 10);
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
-              repo:  context.repo.repo,
+              repo: context.repo.repo,
               release_id: releaseId,
               draft: false
             });
 
       # 8) 성공 코멘트
       - name: Comment success on PR
-        if: steps.publish.conclusion == 'success'
+        if: steps.publish.outcome == 'success'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -120,7 +121,7 @@ jobs:
 
       # 9) 실패 시 태그 삭제 & 실패 코멘트
       - name: Cleanup Tag & Comment Failure
-        if: steps.publish.conclusion != 'success'
+        if: steps.publish.outcome == 'failure'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
