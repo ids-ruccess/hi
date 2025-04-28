@@ -69,54 +69,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 6) Draft Release Notes 생성/업데이트
+      # 6) Draft 생성/업데이트
       - name: Draft Release Notes
-        id: drafter
         uses: release-drafter/release-drafter@v5
         with:
-          config-name: release.yml
+          config-name: .github/release.yml
+          version: ${{ steps.validate.outputs.version }}
+          name:    "릴리즈 v${{ steps.validate.outputs.version }}"
+          tag:     "v${{ steps.validate.outputs.version }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 7) Draft가 있으면 publish, 없으면 새로 create
-      - name: Publish or Create Release
-        id: publish
+      # 7) Draft 퍼블리시
+      - name: Publish the draft
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const tag = `v${{ steps.validate.outputs.version }}`;
-            const desc = `${{ steps.validate.outputs.description }}`;
-            const body = desc + "\n\n" + `${{ steps.drafter.outputs.body }}`;
-            // 1) 모든 릴리즈 불러오기
-            const { data: releases } = await github.rest.repos.listReleases({
+            const drafts = (await github.rest.repos.listReleases({
+              owner: context.repo.owner, repo: context.repo.repo
+            })).data.filter(r => r.tag_name === tag && r.draft);
+            if (!drafts.length) throw new Error(`Draft ${ tag } not found`);
+            await github.rest.repos.updateRelease({
               owner: context.repo.owner,
-              repo:  context.repo.repo
+              repo: context.repo.repo,
+              release_id: drafts[0].id,
+              draft: false
             });
-            // 2) 해당 태그의 draft 찾기
-            const draft = releases.find(r => r.tag_name === tag && r.draft);
-            if (draft) {
-              // 3a) draft가 있으면 퍼블리시(업데이트)
-              await github.rest.repos.updateRelease({
-                owner: context.repo.owner,
-                repo:  context.repo.repo,
-                release_id: draft.id,
-                tag_name: tag,
-                name: tag,
-                body,
-                draft: false
-              });
-            } else {
-              // 3b) draft가 없으면 새로 생성
-              await github.rest.repos.createRelease({
-                owner: context.repo.owner,
-                repo:  context.repo.repo,
-                tag_name: tag,
-                name: tag,
-                body,
-                draft: false
-              });
-            }
 
       # 8) 성공 코멘트
       - name: Comment Success on PR
