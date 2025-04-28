@@ -3,7 +3,7 @@ name: "💬 Ask for Release Command"
 
 on:
   pull_request:
-    types: 
+    types:
       - opened
       - reopened
 
@@ -12,17 +12,55 @@ jobs:
     if: github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v6
+      - name: Post suggested `/release` command
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
-            if (!pr) return;
+            if (!pr) return;  // Safety
 
-            // PR이 main 브랜치로 열리거나 다시 열렸을 때
+            // 1) 가장 최근 릴리즈 태그 가져오기
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              per_page: 1
+            });
+            if (!releases.length) {
+              throw new Error("No existing releases found – please create one first.");
+            }
+            const lastTag = releases[0].tag_name;        // e.g. "v1.2.3"
+            const [maj, min, pat] = lastTag.replace(/^v/, "").split(".").map(n => parseInt(n,10));
+
+            // 2) branch 이름에 "hotfix" 포함 여부로 bump 전략 선택
+            const head = pr.head.ref;
+            let nextMaj = maj, nextMin = min, nextPat = pat;
+            if (head.includes("hotfix")) {
+              nextPat = pat + 1;
+            } else {
+              nextMin = min + 1;
+              nextPat = 0;
+            }
+            const suggested = `v${nextMaj}.${nextMin}.${nextPat}`;
+
+            // 3) 명령어 형식 생성
+            const cmd = `/release -v ${suggested} -d \`<여기에 개요를 입력하세요>\``;
+
+            // 4) 코멘트 본문
+            const body = [
+              "👋 PR이 `main` 브랜치로 열렸습니다!",
+              `• 마지막 릴리즈: **${lastTag}**`,
+              `• 브랜치명: \`${head}\``,
+              "",
+              "**추천 /release 커맨드** (복사해서 사용하세요):",
+              "```",
+              cmd,
+              "```"
+            ].join("\n");
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo:  context.repo.repo,
               issue_number: pr.number,
-              body: "👋 PR이 `main` 브랜치로 열렸습니다! 배포 준비가 완료되면, 머지 후 릴리즈 노트를 생성할 `/release -v x.y.z -d ${description 내용} ` 명령을 꼭 입력해주세요."
+              body
             });
