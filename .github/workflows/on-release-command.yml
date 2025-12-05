@@ -119,6 +119,97 @@ jobs:
               body: `✅ Release v${{ steps.validate.outputs.version }} 완료되었습니다!`
             });
 
+      # 8-1) Slack 알림 (Release 성공)
+      - name: Notify Slack on Release Success
+        if: steps.publish.outcome == 'success'
+        uses: actions/github-script@v6
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          script: |
+            const version = '${{ steps.validate.outputs.version }}';
+            const description = '${{ steps.validate.outputs.description }}';
+            const releaseUrl = `https://github.com/${{ github.repository }}/releases/tag/v${version}`;
+            const repoUrl = `https://github.com/${{ github.repository }}`;
+            const commitSha = '${{ github.sha }}';
+            const commitShort = commitSha.substring(0, 7);
+            const commitUrl = `${repoUrl}/commit/${commitSha}`;
+            const branch = '${{ steps.validate.outputs.base_branch }}';
+            const actor = '${{ github.actor }}';
+
+            // KST 시간 생성
+            const now = new Date();
+            const kstOffset = 9 * 60; // KST는 UTC+9
+            const kstTime = new Date(now.getTime() + kstOffset * 60 * 1000);
+            const timestamp = kstTime.toISOString().replace('T', ' ').substring(0, 19) + ' GMT+0900 (KST)';
+
+            const blocks = [
+              { type: "divider" },
+              {
+                type: "section",
+                fields: [
+                  { type: "mrkdwn", text: `*프로젝트*\n*<${repoUrl}|${{ github.repository }}>*` },
+                  { type: "mrkdwn", text: "*환경*\n`RELEASE`" }
+                ]
+              },
+              {
+                type: "section",
+                fields: [
+                  { type: "mrkdwn", text: `*버전*\n\`v${version}\`` },
+                  { type: "mrkdwn", text: `*브랜치*\n\`${branch}\`` }
+                ]
+              },
+              {
+                type: "section",
+                fields: [
+                  { type: "mrkdwn", text: `*커밋*\n<${commitUrl}|${commitShort}>` },
+                  { type: "mrkdwn", text: `*Release*\n<${releaseUrl}|View Release>` }
+                ]
+              },
+              {
+                type: "section",
+                fields: [
+                  { type: "mrkdwn", text: `*작성자*\n\`${actor}\`` },
+                  { type: "mrkdwn", text: `*상태*\n✅ \`SUCCESS\`` }
+                ]
+              },
+              { type: "divider" }
+            ];
+
+            if (description && description.trim()) {
+              blocks.push({
+                type: "section",
+                text: { type: "mrkdwn", text: `*설명*\n${description.trim()}` }
+              });
+              blocks.push({ type: "divider" });
+            }
+
+            blocks.push({
+              type: "context",
+              elements: [
+                { type: "mrkdwn", text: timestamp }
+              ]
+            });
+
+            const payload = { blocks };
+
+            const webhook = process.env.SLACK_WEBHOOK_URL;
+            if (!webhook) {
+              console.log('SLACK_WEBHOOK_URL is not set. Skipping Slack notification.');
+              return;
+            }
+
+            const response = await fetch(webhook, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+              throw new Error(`Slack notification failed: ${response.statusText}`);
+            }
+            console.log('Slack notification sent successfully');
+
       # 9) 실패 시 태그 삭제 & 실패 코멘트
       - name: Cleanup Tag & Comment Failure
         if: steps.publish.outcome == 'failure'
