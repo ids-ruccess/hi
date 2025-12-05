@@ -62,9 +62,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug Secret
+        run: |
+          if [ -z "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            echo "❌ SLACK_WEBHOOK_URL secret is empty or not set"
+          else
+            echo "✅ SLACK_WEBHOOK_URL secret is set (length: ${#SLACK_WEBHOOK_URL})"
+          fi
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
       - name: 📢 Send Success Notification
         uses: ./.github/actions/notify-slack-shorebird
         with:
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           status: success
           action: ${{ inputs.action }}
           flavor: ${{ inputs.flavor }}
@@ -84,6 +95,7 @@ jobs:
       - name: 📢 Send Failure Notification
         uses: ./.github/actions/notify-slack-shorebird
         with:
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           status: failure
           action: ${{ inputs.action }}
           flavor: ${{ inputs.flavor }}
