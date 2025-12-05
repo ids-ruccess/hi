@@ -29,10 +29,10 @@ runs:
       uses: actions/github-script@v6
       with:
         script: |
-          const webhook = "https://hooks.slack.com/services/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";
+          const webhook = "https://hooks.slack.com/services/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";
 
           const status = '${{ inputs.status }}';
-          const repoUrl = `https://github.com/${context.repo.owner}`;
+          const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
           const commitSha = context.sha;
           const commitShort = commitSha.substring(0, 7);
           const commitUrl = `${repoUrl}/commit/${commitSha}`;
