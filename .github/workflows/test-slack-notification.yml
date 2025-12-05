@@ -1,0 +1,92 @@
+name: Test Slack Notification
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-type:
+        description: 'Test Type'
+        required: true
+        type: choice
+        options:
+          - success
+          - failure
+          - both
+        default: success
+
+      action:
+        description: 'Deploy Action'
+        required: true
+        type: choice
+        options:
+          - release
+          - patch
+        default: patch
+
+      flavor:
+        description: 'Flavor'
+        required: true
+        type: choice
+        options:
+          - dev
+          - qa
+          - prod
+        default: dev
+
+      platforms:
+        description: 'Platforms'
+        required: true
+        type: choice
+        options:
+          - android
+          - ios
+          - both
+        default: both
+
+      version:
+        description: 'Current Version'
+        required: false
+        default: '1.0.0+1'
+
+      prev-version:
+        description: 'Previous Version'
+        required: false
+        default: '0.9.9+999'
+
+jobs:
+  test-success:
+    name: Test Success Notification
+    runs-on: ubuntu-latest
+    if: inputs.test-type == 'success' || inputs.test-type == 'both'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 📢 Send Success Notification
+        uses: ./.github/actions/notify-slack-shorebird
+        with:
+          status: success
+          action: ${{ inputs.action }}
+          flavor: ${{ inputs.flavor }}
+          platforms: ${{ inputs.platforms }}
+          current-version: ${{ inputs.version }}
+          prev-version: ${{ inputs.prev-version }}
+
+  test-failure:
+    name: Test Failure Notification
+    runs-on: ubuntu-latest
+    if: inputs.test-type == 'failure' || inputs.test-type == 'both'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 📢 Send Failure Notification
+        uses: ./.github/actions/notify-slack-shorebird
+        with:
+          status: failure
+          action: ${{ inputs.action }}
+          flavor: ${{ inputs.flavor }}
+          platforms: ${{ inputs.platforms }}
+          current-version: ${{ inputs.version }}
+          prev-version: ${{ inputs.prev-version }}
