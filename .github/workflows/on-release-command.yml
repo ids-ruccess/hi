@@ -148,8 +148,7 @@ jobs:
               {
                 type: "section",
                 fields: [
-                  { type: "mrkdwn", text: `*프로젝트*\n*<${repoUrl}|${{ github.repository }}>*` },
-                  { type: "mrkdwn", text: "*환경*\n`RELEASE`" }
+                  { type: "mrkdwn", text: `*프로젝트*\n*<${repoUrl}|${{ github.repository }}>*` }
                 ]
               },
               {
