@@ -32,7 +32,7 @@ runs:
           const webhook = "https://hooks.slack.com/services/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";
 
           const status = '${{ inputs.status }}';
-          const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+          const repoUrl = `https://github.com/${context.repo.owner}`;
           const commitSha = context.sha;
           const commitShort = commitSha.substring(0, 7);
           const commitUrl = `${repoUrl}/commit/${commitSha}`;
