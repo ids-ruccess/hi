@@ -32,12 +32,15 @@ runs:
       uses: actions/github-script@v6
       with:
         script: |
-          const webhook = '${{ inputs.slack-webhook-url }}';
+          const webhook = '${{ inputs.slack-webhook-url }}'.trim();
 
           if (!webhook) {
             console.log('Slack webhook URL is not set. Skipping notification.');
             return;
           }
+
+          console.log('Webhook URL length:', webhook.length);
+          console.log('Webhook URL starts with:', webhook.substring(0, 30));
 
           const status = '${{ inputs.status }}';
           const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
