@@ -41,6 +41,9 @@ runs:
 
           console.log('Webhook URL length:', webhook.length);
           console.log('Webhook URL starts with:', webhook.substring(0, 30));
+          console.log('\n=== Testing webhook with curl ===');
+          console.log(`curl -X POST '${webhook}' -H 'Content-Type: application/json' -d '{"text":"test"}'`);
+          console.log('Copy the above command and run it locally to verify the webhook works');
 
           const status = '${{ inputs.status }}';
           const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
