@@ -1,0 +1,147 @@
+name: 'Notify Slack - Shorebird Deploy'
+description: 'Send Slack notification for Shorebird deployment'
+
+inputs:
+  status:
+    description: 'Deploy status (success or failure)'
+    required: true
+  action:
+    description: 'Deploy action (release or patch)'
+    required: true
+  flavor:
+    description: 'Flavor (dev, qa, prod)'
+    required: true
+  platforms:
+    description: 'Platforms (android, ios, both)'
+    required: true
+  current-version:
+    description: 'Current version'
+    required: true
+  prev-version:
+    description: 'Previous version'
+    required: false
+    default: ''
+
+runs:
+  using: "composite"
+  steps:
+    - name: Send Slack Notification
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const webhook = "https://hooks.slack.com/services/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";
+
+          const status = '${{ inputs.status }}';
+          const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+          const commitSha = context.sha;
+          const commitShort = commitSha.substring(0, 7);
+          const commitUrl = `${repoUrl}/commit/${commitSha}`;
+          const branch = context.ref.replace('refs/heads/', '');
+          const actor = context.actor;
+
+          const action = '${{ inputs.action }}'.toUpperCase();
+          const flavor = '${{ inputs.flavor }}'.toUpperCase();
+          const platforms = '${{ inputs.platforms }}'.toUpperCase();
+          const currentVersion = '${{ inputs.current-version }}';
+          const prevVersion = '${{ inputs.prev-version }}';
+
+          // 플랫폼 라벨
+          const platformLabel = platforms === 'BOTH' ? 'Android + iOS' :
+                               platforms === 'ANDROID' ? 'Android' : 'iOS';
+
+          // KST 시간 생성
+          const now = new Date();
+          const kstOffset = 9 * 60;
+          const kstTime = new Date(now.getTime() + kstOffset * 60 * 1000);
+          const timestamp = kstTime.toISOString().replace('T', ' ').substring(0, 19) + ' GMT+0900 (KST)';
+
+          // 커밋 메시지 가져오기
+          const commitMessage = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: commitSha
+          }).then(res => res.data.commit.message.split('\n')[0]).catch(() => '');
+
+          const blocks = [
+            { type: "divider" },
+            {
+              type: "section",
+              fields: [
+                { type: "mrkdwn", text: `*프로젝트*\n*<${repoUrl}|${context.repo.owner}/${context.repo.repo}>*` },
+                { type: "mrkdwn", text: `*플랫폼*\n\`${platformLabel}\`` }
+              ]
+            },
+            {
+              type: "section",
+              fields: [
+                { type: "mrkdwn", text: `*환경*\n\`${flavor}\`` },
+                { type: "mrkdwn", text: `*Shorebird*\n\`${action}\`` }
+              ]
+            },
+            {
+              type: "section",
+              fields: [
+                { type: "mrkdwn", text: `*버전*\n\`${currentVersion}\`` },
+                { type: "mrkdwn", text: `*이전 버전*\n${prevVersion ? `\`${prevVersion}\`` : '-'}` }
+              ]
+            },
+            {
+              type: "section",
+              fields: [
+                { type: "mrkdwn", text: `*브랜치*\n\`${branch}\`` },
+                { type: "mrkdwn", text: `*커밋*\n<${commitUrl}|${commitShort}>` }
+              ]
+            }
+          ];
+
+          if (commitMessage) {
+            blocks.push({
+              type: "section",
+              text: { type: "mrkdwn", text: `*커밋 메시지*\n${commitMessage}` }
+            });
+          }
+
+          const statusEmoji = status === 'success' ? '✅' : '❌';
+          const statusText = status === 'success' ? 'SUCCESS' : 'FAILURE';
+
+          blocks.push({
+            type: "section",
+            fields: [
+              { type: "mrkdwn", text: `*배포자*\n\`${actor}\`` },
+              { type: "mrkdwn", text: `*상태*\n${statusEmoji} \`${statusText}\`` }
+            ]
+          });
+
+          // 성공 시에만 Shorebird Console 링크 추가
+          if (status === 'success') {
+            blocks.push(
+              { type: "divider" },
+              {
+                type: "section",
+                text: { type: "mrkdwn", text: `*Shorebird Console*\n<https://console.shorebird.dev|바로가기>` }
+              }
+            );
+          }
+
+          blocks.push(
+            { type: "divider" },
+            {
+              type: "context",
+              elements: [
+                { type: "mrkdwn", text: timestamp }
+              ]
+            }
+          );
+
+          const payload = { blocks };
+
+          const response = await fetch(webhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            throw new Error(`Slack notification failed: ${response.statusText}`);
+          }
+          console.log('Slack notification sent successfully');
