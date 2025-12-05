@@ -29,7 +29,7 @@ runs:
       uses: actions/github-script@v6
       with:
         script: |
-          const webhook = "https://hooks.slack.com/services/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";
+          const webhook = "https://hooks.slack.com/services/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";
 
           const status = '${{ inputs.status }}';
           const repoUrl = `https://github.com/${context.repo.owner}`;
