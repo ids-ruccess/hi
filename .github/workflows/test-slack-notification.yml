@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 📢 Send Success Notification
-        uses: ../.github/actions/notify-slack-shorebird
+        uses: ./.github/actions/notify-slack-shorebird
         with:
           status: success
           action: ${{ inputs.action }}
