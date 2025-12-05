@@ -27,9 +27,11 @@ runs:
   steps:
     - name: Send Slack Notification
       uses: actions/github-script@v6
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       with:
         script: |
-          const webhook = "https://hooks.slack.com/services/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";
+          const webhook = process.env.SLACK_WEBHOOK_URL;
 
           const status = '${{ inputs.status }}';
           const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
